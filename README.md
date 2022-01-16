@@ -3,7 +3,9 @@
 ## Overview:
 
 We are creating a website to display UFO sighting data file and using a JS app to filter the data.
-[Access the website here](https://efrenbernal90.github.io/UFO_sightings/)
+
+<a href="https://efrenbernal90.github.io/UFO_sightings/" target="_blank">Access website here</a>
+
 
 ### Resources:
 
