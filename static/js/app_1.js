@@ -47,3 +47,18 @@ d3.selectAll("#filter-btn").on("click", handleClick);
 
 // Build the table when the page loads
 buildTable(tableData);
+
+// function onlyUnique(value, index, self) {
+//   return self.indexOf(value) === index;
+// }
+
+// // usage example:
+// var a = ['a', 1, 'a', 2, '1'];
+// var unique = a.filter(onlyUnique);
+
+// console.log(unique); // ['a', 1, 2, '1']
+
+uniqueNames = data.map(val => val.city).filter(
+  (value, index, self) => self.indexOf(value) === index);
+
+console.log(uniqueNames);
