@@ -7,7 +7,7 @@ We are creating a website to display UFO sighting data file and using a JS app t
 ### Resources:
 
 UFO Data was provided in:
-- data.js
+- [data.js](static/js/data.js)
 
 Additional Resources: 
 - Bootstrap 4.0.0
