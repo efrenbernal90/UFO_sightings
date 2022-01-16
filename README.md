@@ -1,9 +1,11 @@
 # UFO_sightings
 
 ## Overview:
+
 We are creating a website to display UFO sighting data file and using a JS app to filter the data.
 
 ### Resources:
+
 UFO Data was provided in:
 - data.js
 
@@ -17,129 +19,126 @@ Additional Documentation:
 - [JavaScritWebDocs](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 
 ## Results
+
 ### The following script creates an unfiltered table on our page:
 
-    def mars_news(browser):
-      # Visit the mars nasa news site
-      url = 'https://redplanetscience.com'
-      browser.visit(url)
-      # Optional delay for loading the page
-      browser.is_element_present_by_css('div.list_text', wait_time=1)
+    // from data.js
+    const tableData = data;
 
-      # Add soup object from html
-      html = browser.html
-      news_soup = soup(html, 'html.parser')
+    // get table references
+    var tbody = d3.select("tbody");
 
-      # Add try/except for error handling
-      try:
-          slide_elem = news_soup.select_one('div.list_text')
-          slide_elem.find('div', class_='content_title')
+    function buildTable(data) {
+      // First, clear out any existing data
+      tbody.html("");
 
-          # Use the parent element to find the first `a` tag and save it as `news_title`
-          news_title = slide_elem.find('div', class_='content_title').get_text()
+      // Next, loop through each object in the data
+      // and append a row and cells for each value in the row
+      data.forEach((dataRow) => {
+        // Append a row to the table body
+        let row = tbody.append("tr");
 
-          # Use the parent element to find the paragraph text
-          news_p = slide_elem.find('div', class_='article_teaser_body').get_text()
-      except AttributeError:
-          return None, None
-
-      return news_title, news_p
-
-### The image was added by scrapping spaceimages-mars.com using
-     
-     def featured_image(browser):
-        # Visit URL
-        url = 'https://spaceimages-mars.com'
-        browser.visit(url)
-
-        # Find and click the full image button
-        full_image_elem = browser.find_by_tag('button')[1]
-        full_image_elem.click()
-
-        # Parse the resulting html with soup
-        html = browser.html
-        img_soup = soup(html, 'html.parser')
-
-        try:
-            # Find the relative image url
-            img_url_rel = img_soup.find('img', class_='headerimage fade-in').get('src')
-
-        except AttributeError:
-            return None
-
-
-        # Use the base URL to create an absolute URL
-        img_url = f'https://spaceimages-mars.com/{img_url_rel}'
-
-        return img_url
-             
-### The facts table was scrapped from galaxyfacts-mars.com using
-
-      def mars_facts():
-    # Add try/except for error handling
-    try:
-        # Use 'read_html' to scrape the facts table into a dataframe
-        df = pd.read_html('https://galaxyfacts-mars.com')[0]
-
-    except BaseException:
-        return None
-
-    # Assign columns and set index of dataframe
-    df.columns=['Description', 'Mars', 'Earth']
-    df.set_index('Description', inplace=True)
-
-    # Convert dataframe into HTML format, add bootstrap
-    return df.to_html()
+        // Loop through each field in the dataRow and add
+        // each value as a table cell (td)
+        Object.values(dataRow).forEach((val) => {
+          let cell = row.append("td");
+          cell.text(val);
+        });
+      });
+    }
     
-### Finally, the hemispheres were added by scrapping marshemispheres.com/ using
+### The filter script created input boxes that filtered data whenever a user inputs data:
 
-    def mars_hemisphere(browser):
-    # 1. Visit url
-    url = 'https://marshemispheres.com/'
-    browser.visit(url)
-    # 2. Create a list to hold the images and titles.
-    hemisphere_image_urls = []
+    // 1. Create a variable to keep track of all the filters as an object.
+    let filters = {}; 
 
-    # 3. Write code to retrieve the image urls and titles for each hemisphere.
-    html = browser.html
-    page = soup(html, 'html.parser')
-    div = page.find_all(class_= 'description')
+    // 3. Use this function to update the filters. 
+    function updateFilters() {
 
-    try:
-        for x in div:     
-            hemimspheres = {}
-            
-            hem_url = x.find('a')['href']
-            browser.visit(f'https://marshemispheres.com/{hem_url}')
-            
-            html = browser.html
-            doc = soup(html, 'html.parser')
-            
-            img_url = doc.select_one('div.downloads ul li a').get('href')
-            full_img_url = f'https://marshemispheres.com/{img_url}'
-            name = doc.select_one('h2.title').get_text()
-            hemimspheres = {'img_url': full_img_url, 
-                'title': name} 
-            
-            hemisphere_image_urls.append(hemimspheres)
-            
-            browser.back()
-    except AttributeError:
-        return None
+        // 4a. Save the element that was changed as a variable.
+        let changedElement = d3.select(this);
+        // 4b. Save the value that was changed as a variable.
+        let elementValue = changedElement.property("value");
+        console.log(elementValue);
+        // 4c. Save the id of the filter that was changed as a variable.
+        let filterId = changedElement.attr("id")
+        console.log(filterId);
 
-    return hemisphere_image_urls
-    
-### The data was uploaded into flask-Pymongo [See app.py](app.py)
+        // 5. If a filter value was entered then add that filterId and value
+        // to the filters list. Otherwise, clear that filter from the filters object.
+        if (elementValue) {
+          filters[filterId] = elementValue;
+        }
+        else {
+          delete filters[filterId]
+        }
 
-### A sample of the website (note that Bootstrap was used to make hemisphere images into thumbnails and split into a row of four images:
-![First_half](Resources/Intro_webpage.png)
+        // 6. Call function to apply all filters and rebuild the table
+        filterTable(filters);
+
+      }
+
+      // 7. Use this function to filter the table when data is entered.
+      function filterTable() {
+
+        // 8. Set the filtered data to the tableData.
+        let filteredData = tableData  
+
+        // 9. Loop through all of the filters and keep any data that
+        // matches the filter values
+        Object.entries(filters).forEach(
+          ([key,value]) => {
+            filteredData = filteredData.filter(row => row[key] === value)
+          }
+        );
+        // 10. Finally, rebuild the table using the filtered data
+        buildTable(filteredData);
+      } 
 
 
-![Hemispheres](Resources/Mars_hemispheres.png)
+      // 2. Attach an event to listen for changes to each filter
+      d3.selectAll("input").on("change", updateFilters);
 
-### When viewing in different platforms (i.e. iPad), the images and text are responsive to the width of the page, while thumbnails are taking up the width of the page:
-![ipad1](Resources/ipad1.png)
+      // Build the table when the page loads
+      buildTable(tableData);
 
+#### How it works:
 
-![ipad2](Resources/ipad2.png)
+Users are presented with an unfiltered table upon loading the page, with place holders in the input boxes as format examples:
 
+![unfiltered](static/images/normal.png)
+
+The table is then filtered after user inputs a value for any of the input boxes:
+
+![filtered](static/images/filtered.png)
+
+> #### Here is a list of filter options:
+> 
+> **Date **
+> 01/01/2010 - 01/13/2010 
+> 
+> **Cities**
+> - "bonita"
+> - "el cajon"
+> - "fresno"
+> - "grants pass"
+> - "la mesa"
+>
+> **State**
+> - "ca"
+> - "pa"
+> - "az"
+> - "fl"
+> 
+> **Country**
+> - "us"
+> - "ca"
+> 
+> **Shape**
+> - "light"
+> - "triangle"
+> - "unknown"
+
+## Summary
+
+One of the biggest drawbacks to this webpage is that it is very limited to one's understanding of the data supplied. While someone could look into the data.js file for a reference of possible filters, it isn't intuative. Furthermore, larger datasets would make this method impractical. We could add a list that contains unique elemnts for each filter category, but that also means that for larger data sets, we would get really large lists. A drop-down menu that lists all possible options for each filter could be much more intuative for individuals not familiar with the dataset.
