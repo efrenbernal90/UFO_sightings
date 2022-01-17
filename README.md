@@ -143,4 +143,6 @@ The table is then filtered after user inputs a value for any of the input boxes:
 
 ## Summary
 
-One of the biggest drawbacks to this webpage is that it is very limited to one's understanding of the data supplied. While someone could look into the data.js file for a reference of possible filters, it isn't intuative. Furthermore, larger datasets would make this method impractical. We could add a list that contains unique elemnts for each filter category, but that also means that for larger data sets, we would get really large lists. A drop-down menu that lists all possible options for each filter could be much more intuative for individuals not familiar with the dataset.
+One of the biggest drawbacks to this webpage is that it is very limited to one's understanding of the data supplied. While someone could look into the data.js file for a reference of possible filters, it isn't intuative. Furthermore, larger datasets would make this method impractical. By adding a list that contains unique elements for each filter category, such as a drop-down menu, users can be shown possible parameters. 
+
+In addition, we may also add a regex script that recognizes user input regardless of format, so long as it matches data. For example, the filter only recognizes strict case and date formats, and would not match otherwise. 
